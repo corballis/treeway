@@ -51,7 +51,7 @@ public class MigrationCollector {
                 usedVersions.add(filenameElements[1]);
                 addFile(files, filenameElements[1]);
             } else {
-                throw new MojoFailureException("Version: " + filenameElements[1] + " refers circularly");
+                throw new MojoFailureException("Version: " + filenameElements[1] + " generates a circular reference");
             }
         }
 

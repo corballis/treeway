@@ -18,7 +18,7 @@ public class CopyMigrationsMojo extends AbstractMojo {
     @Parameter(property = "resourcePath", defaultValue = "src/main/resources/treeway")
     private String resourcePath;
 
-    @Parameter(property = "targetPath", defaultValue = "src/main/resources/db/migration")
+    @Parameter(property = "targetPath", defaultValue = "src/main/generated")
     private String targetPath;
 
     @Parameter(property = "migrationVersion")
@@ -26,6 +26,10 @@ public class CopyMigrationsMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (migrationVersion == null) {
+            throw new MojoFailureException("Migration version has not specified");
+        }
+
         try {
             getLog().debug("Treeway resource path: " + resourcePath);
             getLog().debug("Treeway target path: " + targetPath);

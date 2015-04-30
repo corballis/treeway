@@ -32,6 +32,16 @@ public class CopyMigrationsMojoTest {
     }
 
     @Test
+    public void verifyNullMigrationVersion() throws MojoExecutionException {
+        try {
+            copyMigrationsMojo.execute();
+            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
+        } catch (MojoFailureException e) {
+            assertThat(e).hasMessage("Migration version has not specified");
+        }
+    }
+
+    @Test
     public void verifyNonExistingMigrationVersion() throws MojoExecutionException {
         try {
             copyMigrationsMojo.setMigrationVersion("NE1");
@@ -76,7 +86,7 @@ public class CopyMigrationsMojoTest {
             copyMigrationsMojo.execute();
             Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
         } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C1 refers circularly");
+            assertThat(e).hasMessage("Version: C1 generates a circular reference");
         }
 
         try {
@@ -84,7 +94,7 @@ public class CopyMigrationsMojoTest {
             copyMigrationsMojo.execute();
             Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
         } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C1 refers circularly");
+            assertThat(e).hasMessage("Version: C1 generates a circular reference");
         }
 
         try {
@@ -92,7 +102,7 @@ public class CopyMigrationsMojoTest {
             copyMigrationsMojo.execute();
             Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
         } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C4 refers circularly");
+            assertThat(e).hasMessage("Version: C4 generates a circular reference");
         }
 
         try {
@@ -100,7 +110,7 @@ public class CopyMigrationsMojoTest {
             copyMigrationsMojo.execute();
             Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
         } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C3 refers circularly");
+            assertThat(e).hasMessage("Version: C3 generates a circular reference");
         }
     }
 
