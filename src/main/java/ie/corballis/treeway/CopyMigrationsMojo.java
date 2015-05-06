@@ -14,11 +14,12 @@ import java.util.List;
 
 @Mojo(name = "copy-migrations", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class CopyMigrationsMojo extends AbstractMojo {
+    public static final String DEFAULT_TARGET_PATH = "src/main/generated";
 
     @Parameter(property = "resourcePath", defaultValue = "src/main/resources/treeway")
     private String resourcePath;
 
-    @Parameter(property = "targetPath", defaultValue = "src/main/generated")
+    @Parameter(property = "targetPath", defaultValue = DEFAULT_TARGET_PATH)
     private String targetPath;
 
     @Parameter(property = "migrationVersion")
