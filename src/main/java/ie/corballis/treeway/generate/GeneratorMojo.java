@@ -1,32 +1,19 @@
 package ie.corballis.treeway.generate;
 
+import ie.corballis.treeway.AbstractHibernateMojo;
 import ie.corballis.treeway.CopyMigrationsMojo;
 import ie.corballis.treeway.generate.overrides.CustomGenericExporter;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.Path;
-import org.hibernate.tool.ant.JDBCConfigurationTask;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2x.GenericExporter;
 
 import java.io.File;
 import java.util.Properties;
 
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
-public class GeneratorMojo extends AbstractMojo {
-
-    @Parameter(property = "packageName", defaultValue = "com.corballis")
-    private String packageName = "com.corballis";
-
-    @Parameter(property = "revengFile", defaultValue = "src/main/resources/reveng.xml")
-    private String revengFile = "src/main/resources/reveng.xml";
-
-    @Parameter(property = "revengFile", defaultValue = "src/main/resources/hibernate.properties")
-    private String propertyFile = "src/main/resources/hibernate.properties";
+public class GeneratorMojo extends AbstractHibernateMojo {
 
     @Parameter(property = "targetPath", defaultValue = CopyMigrationsMojo.DEFAULT_TARGET_PATH)
     private String targetPath = CopyMigrationsMojo.DEFAULT_TARGET_PATH;
@@ -41,14 +28,8 @@ public class GeneratorMojo extends AbstractMojo {
     private String filePattern = "{package-name}/{class-name}.java";
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        JDBCConfigurationTask configurationTask = new JDBCConfigurationTask();
-        configurationTask.setPackageName(packageName);
-        Project project = new Project();
-        configurationTask.setRevEngFile(new Path(project, revengFile));
-        configurationTask.setPropertyFile(new File(propertyFile));
-
-        GenericExporter genericExporter = new CustomGenericExporter(configurationTask.getConfiguration(), new File(targetPath));
+    protected void doExecute(Configuration configuration) {
+        GenericExporter genericExporter = new CustomGenericExporter(configuration, new File(targetPath));
         genericExporter.setTemplateName(templateName);
         if (templatePaths != null) {
             genericExporter.setTemplatePath(templatePaths);
