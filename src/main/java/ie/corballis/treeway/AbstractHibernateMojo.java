@@ -19,7 +19,7 @@ public abstract class AbstractHibernateMojo extends AbstractMojo {
     @Parameter(property = "revengFile", defaultValue = "src/main/resources/reveng.xml")
     protected String revengFile = "src/main/resources/reveng.xml";
 
-    @Parameter(property = "revengFile", defaultValue = "src/main/resources/hibernate.properties")
+    @Parameter(property = "propertyFile", defaultValue = "src/main/resources/hibernate.properties")
     protected String propertyFile = "src/main/resources/hibernate.properties";
 
     @Override
