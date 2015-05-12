@@ -16,16 +16,16 @@ import java.util.Properties;
 @Mojo(name = "migrate", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class MigrateMojo extends AbstractMojo {
 
-    @Parameter(property = "driver")
+    @Parameter(property = "driver", required = true)
     private String driver;
 
-    @Parameter(property = "url")
+    @Parameter(property = "url", required = true)
     private String url;
 
-    @Parameter(property = "user")
+    @Parameter(property = "user", required = true)
     private String user;
 
-    @Parameter(property = "password")
+    @Parameter(property = "password", required = true)
     private String password;
 
     @Parameter(property = "targetPath", defaultValue = CopyMigrationsMojo.DEFAULT_TARGET_PATH)

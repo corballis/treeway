@@ -22,7 +22,7 @@ public class CopyMigrationsMojo extends AbstractMojo {
     @Parameter(property = "targetPath", defaultValue = DEFAULT_TARGET_PATH)
     private String targetPath;
 
-    @Parameter(property = "migrationVersion")
+    @Parameter(property = "migrationVersion", required = true)
     private String migrationVersion;
 
     @Override
