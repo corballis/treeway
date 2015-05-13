@@ -26,13 +26,13 @@
         <#if c2h.isCollection(property)>
         for (${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} obj : ${property.name}) {
         <#if c2h.isOneToMany(property)>
-            obj.set${pojo.getDeclarationName()}(this);
+            obj.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);
         <#else>
-            obj.get${pluralizedDeclarationName}().add(this);
+            obj.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
         </#if>
         }
         <#elseif c2h.isManyToOne(property)>
-        ${property.name}.get${pluralizedDeclarationName}().add(this);
+        ${property.name}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
         </#if>
     }
 
@@ -40,9 +40,9 @@
     ${pojo.getPropertySetModifiers(property)} void add${singularizedPropertyName?capitalize}(${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} ${singularizedPropertyName}) {
         this.get${pojo.getPropertyName(property)}().add(${singularizedPropertyName});
         <#if c2h.isOneToMany(property)>
-        ${singularizedPropertyName}.set${pojo.getDeclarationName()}(this);
+        ${singularizedPropertyName}.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);
         <#else>
-        ${singularizedPropertyName}.get${pluralizedDeclarationName}().add(this);
+        ${singularizedPropertyName}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
         </#if>
     }
     </#if>
