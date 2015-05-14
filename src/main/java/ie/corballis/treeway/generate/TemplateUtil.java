@@ -36,7 +36,7 @@ public class TemplateUtil {
     }
 
     private String cutPropertyNameLeading(String propertyName, String separator, String replaceSeparator) {
-        Iterator<String> propertyNameElements = Lists.newArrayList(propertyName.split("(?=\\p{Upper})")).iterator();
+        Iterator<String> propertyNameElements = Lists.newArrayList(splitByUpperCase(propertyName)).iterator();
 
         while (propertyNameElements.hasNext()) {
             String element = propertyNameElements.next();
@@ -55,11 +55,15 @@ public class TemplateUtil {
         return "";
     }
 
+    public static String[] splitByUpperCase(String propertyName) {
+        return propertyName.split("(?=\\p{Upper})");
+    }
+
     private String cutPropertyNameTrailing(String propertyName, String... separators) {
         List<String> separatorList = Lists.newArrayList(separators);
         List<String> propertyNameElementList = Lists.newArrayList();
 
-        Iterator<String> propertyNameElements = Lists.newArrayList(propertyName.split("(?=\\p{Upper})")).iterator();
+        Iterator<String> propertyNameElements = Lists.newArrayList(splitByUpperCase(propertyName)).iterator();
         while (propertyNameElements.hasNext()) {
             String element = propertyNameElements.next();
             if (separatorList.contains(element)) {

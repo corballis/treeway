@@ -52,4 +52,16 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
         }
         return "Persistable<Long>";
     }
+
+    @Override
+    public String getGetterSignature(Property p) {
+        String signature = super.getGetterSignature(p);
+        String[] signatureElements = TemplateUtil.splitByUpperCase(signature);
+
+        if (signatureElements[1].equals("Has")) {
+            return signature.replaceAll("^isHas(.*)", "has$1");
+        }
+
+        return signature;
+    }
 }
