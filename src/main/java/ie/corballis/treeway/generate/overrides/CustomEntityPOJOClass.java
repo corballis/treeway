@@ -43,4 +43,13 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
     public boolean hasFieldInitializor(Property p, boolean useGenerics) {
         return super.getFieldInitialization(p, useGenerics) != null;
     }
+
+    @Override
+    public String getImplements() {
+        String implementsString = super.getImplements();
+        if (implementsString != null && !implementsString.equals("")) {
+            return implementsString + ", Persistable<Long>";
+        }
+        return "Persistable<Long>";
+    }
 }
