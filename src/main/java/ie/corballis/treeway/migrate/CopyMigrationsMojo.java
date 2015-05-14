@@ -1,29 +1,25 @@
-package ie.corballis.treeway;
+package ie.corballis.treeway.migrate;
 
+import ie.corballis.treeway.AbstractTreewayMojo;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 @Mojo(name = "copy-migrations", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
-public class CopyMigrationsMojo extends AbstractMojo {
-    public static final String DEFAULT_TARGET_PATH = "${basedir}/src/main/generated";
+public class CopyMigrationsMojo extends AbstractTreewayMojo {
 
-    @Parameter(property = "resourcePath", defaultValue = "${basedir}/src/main/resources/treeway")
-    private String resourcePath;
+    public CopyMigrationsMojo() {
+    }
 
-    @Parameter(property = "targetPath", defaultValue = DEFAULT_TARGET_PATH)
-    private String targetPath;
-
-    @Parameter(property = "migrationVersion", required = true)
-    private String migrationVersion;
+    public CopyMigrationsMojo(AbstractTreewayMojo mojo) {
+        super(mojo);
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

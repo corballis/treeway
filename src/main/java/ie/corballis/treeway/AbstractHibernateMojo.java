@@ -1,9 +1,7 @@
 package ie.corballis.treeway;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
 import org.hibernate.cfg.Configuration;
@@ -11,16 +9,14 @@ import org.hibernate.tool.ant.JDBCConfigurationTask;
 
 import java.io.File;
 
-public abstract class AbstractHibernateMojo extends AbstractMojo {
+public abstract class AbstractHibernateMojo extends AbstractTreewayMojo {
 
-    @Parameter(property = "packageName", defaultValue = "com.corballis")
-    protected String packageName = "com.corballis";
+    public AbstractHibernateMojo() {
+    }
 
-    @Parameter(property = "revengFile", defaultValue = "${basedir}/src/main/resources/reveng.xml")
-    protected String revengFile = "${basedir}/src/main/resources/reveng.xml";
-
-    @Parameter(property = "propertyFile", defaultValue = "${basedir}/src/main/resources/hibernate.properties")
-    protected String propertyFile = "${basedir}/src/main/resources/hibernate.properties";
+    public AbstractHibernateMojo(AbstractTreewayMojo mojo) {
+        super(mojo);
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

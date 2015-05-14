@@ -1,18 +1,15 @@
 package ie.corballis.treeway.clean;
 
 import ie.corballis.treeway.AbstractHibernateMojo;
+import ie.corballis.treeway.AbstractTreewayMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.registry.internal.StandardServiceRegistryImpl;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.JDBCMetaDataConfiguration;
-import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-import org.hibernate.engine.jdbc.internal.JdbcServicesImpl;
 import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
@@ -24,6 +21,13 @@ import java.util.Iterator;
 
 @Mojo(name = "clean-foreign-keys", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class ForeignKeyCleanerMojo extends AbstractHibernateMojo {
+
+    public ForeignKeyCleanerMojo() {
+    }
+
+    public ForeignKeyCleanerMojo(AbstractTreewayMojo mojo) {
+        super(mojo);
+    }
 
     @Override
     protected void doExecute(Configuration configuration) throws MojoExecutionException {

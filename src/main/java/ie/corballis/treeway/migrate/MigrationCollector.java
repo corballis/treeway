@@ -1,4 +1,4 @@
-package ie.corballis.treeway;
+package ie.corballis.treeway.migrate;
 
 import org.apache.maven.plugin.MojoFailureException;
 

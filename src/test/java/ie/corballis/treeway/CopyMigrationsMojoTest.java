@@ -1,5 +1,6 @@
 package ie.corballis.treeway;
 
+import ie.corballis.treeway.migrate.CopyMigrationsMojo;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
