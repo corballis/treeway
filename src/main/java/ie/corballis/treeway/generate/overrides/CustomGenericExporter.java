@@ -33,7 +33,7 @@ public class CustomGenericExporter extends GenericExporter {
     }
 
     private void updateProperties(Iterator propertiesIterator, POJOClass element) {
-        while(propertiesIterator.hasNext()) {
+        while (propertiesIterator.hasNext()) {
             Property property = (Property) propertiesIterator.next();
             if ("id".equals(property.getName()) && !element.getExtends().isEmpty()) {
                 Map metaAttributes = property.getMetaAttributes();
@@ -44,7 +44,12 @@ public class CustomGenericExporter extends GenericExporter {
                 metaAttribute.addValue("false");
                 property.getMetaAttributes().put("gen-property", metaAttribute);
             }
+            boolean hasParent = TemplateUtil.hasParent(property.getName());
             property.setName(TemplateUtil.getDeclarationName(property.getName()));
+
+            if (hasParent) {
+                property.setName(TemplateUtil.getPropertyName(property, getCfg2HbmTool()));
+            }
         }
     }
 

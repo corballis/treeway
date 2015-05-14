@@ -4,6 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.twitter.elephantbird.util.Strings;
 import org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil;
+import org.hibernate.mapping.Property;
+import org.hibernate.tool.hbm2x.Cfg2HbmTool;
 import org.hibernate.tool.hbm2x.pojo.POJOClass;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public class TemplateUtil {
     private String cutPropertyNameLeading(String propertyName, String separator, String replaceSeparator) {
         Iterator<String> propertyNameElements = Lists.newArrayList(propertyName.split("(?=\\p{Upper})")).iterator();
 
-        while(propertyNameElements.hasNext()) {
+        while (propertyNameElements.hasNext()) {
             String element = propertyNameElements.next();
             propertyNameElements.remove();
             if (element.equals(separator)) {
@@ -53,6 +55,22 @@ public class TemplateUtil {
         return "";
     }
 
+    private String cutPropertyNameTrailing(String propertyName, String... separators) {
+        List<String> separatorList = Lists.newArrayList(separators);
+        List<String> propertyNameElementList = Lists.newArrayList();
+
+        Iterator<String> propertyNameElements = Lists.newArrayList(propertyName.split("(?=\\p{Upper})")).iterator();
+        while (propertyNameElements.hasNext()) {
+            String element = propertyNameElements.next();
+            if (separatorList.contains(element)) {
+                break;
+            }
+            propertyNameElementList.add(element);
+        }
+
+        return Joiner.on("").join(propertyNameElementList);
+    }
+
     public static String getDeclarationName(String name) {
         return name.replaceAll("^(.*)Extends(.*)", "$1");
     }
@@ -67,6 +85,11 @@ public class TemplateUtil {
 
     public static boolean hasParent(String name) {
         return name.contains("Extends");
+    }
+
+    public static String getPropertyName(Property property, Cfg2HbmTool cfg2HbmTool) {
+        return cfg2HbmTool.isCollection(property) ? ReverseEngineeringStrategyUtil.simplePluralize(property.getName()) : property
+                                                                                                                             .getName();
     }
 
 }

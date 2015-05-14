@@ -26,6 +26,21 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
     @Override
     public String getJavaTypeName(Property p, boolean useGenerics) {
         String javaTypeName = super.getJavaTypeName(p, useGenerics);
-        return javaTypeName.replaceAll("^(.*)Extends(.*)", "$1");
+        return javaTypeName.replaceAll("^(.*)Extends(.*)", "$1" + (javaTypeName.startsWith("Set<") ? ">" : ""));
+    }
+
+    @Override
+    public String getFieldInitialization(Property p, boolean useGenerics) {
+        String fieldInitialization = super.getFieldInitialization(p, useGenerics);
+        if (fieldInitialization.matches("new HashSet<(.*)Extends.*>\\(0\\)")) {
+            fieldInitialization =
+                fieldInitialization.replaceAll("new HashSet<(.*)Extends.*>\\(0\\)", "new HashSet<$1>(0)");
+        }
+        return fieldInitialization;
+    }
+
+    @Override
+    public boolean hasFieldInitializor(Property p, boolean useGenerics) {
+        return super.getFieldInitialization(p, useGenerics) != null;
     }
 }
