@@ -7,7 +7,6 @@
     ${value}
 </#foreach>
 </#if>
-${property.name}
 <#if pojo.getMetaAttribAsBool(property, "gen-property", true)>
  <#if pojo.hasFieldJavaDoc(property)>    
     /**       
