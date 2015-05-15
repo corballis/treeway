@@ -75,22 +75,6 @@ public class TemplateUtil {
         return Joiner.on("").join(propertyNameElementList);
     }
 
-    public static String getDeclarationName(String name) {
-        return name.replaceAll("^(.*)Extends(.*)", "$1");
-    }
-
-    public static String getExtends(String name) {
-        if (hasParent(name)) {
-            return name.replaceAll("^(.*)Extends(.*)", "$2");
-        }
-
-        return "";
-    }
-
-    public static boolean hasParent(String name) {
-        return name.contains("Extends");
-    }
-
     public static String getPropertyName(Property property, Cfg2HbmTool cfg2HbmTool) {
         return cfg2HbmTool.isCollection(property) ? ReverseEngineeringStrategyUtil.simplePluralize(property.getName()) : property
                                                                                                                              .getName();

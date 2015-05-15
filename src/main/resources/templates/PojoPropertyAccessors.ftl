@@ -2,11 +2,12 @@
 <#assign pluralizedDeclarationName = templateUtil.simplePluralize(pojo.getDeclarationName())/>
 <#foreach property in pojo.getAllPropertiesIterator()>
 <#assign singularizedPropertyName = templateUtil.singularize(property.name)/>
-<#foreach column in property.getColumnIterator()>
-<#if column.comment??>
-    ${column.comment}
-</#if>
+<#if property.getMetaAttribute("annotation")??>
+<#foreach value in property.getMetaAttribute("annotation").getValues()>
+    ${value}
 </#foreach>
+</#if>
+${property.name}
 <#if pojo.getMetaAttribAsBool(property, "gen-property", true)>
  <#if pojo.hasFieldJavaDoc(property)>    
     /**       

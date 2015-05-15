@@ -1,5 +1,5 @@
 
-   @Transient
+    @Transient
     public boolean isNew() {
         return null == getId();
     }
