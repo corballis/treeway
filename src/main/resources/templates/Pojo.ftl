@@ -27,6 +27,7 @@ import org.apache.commons.collections4.Transformer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import javax.persistence.Transient;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.annotation.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import javax.validation.constraints.*;
