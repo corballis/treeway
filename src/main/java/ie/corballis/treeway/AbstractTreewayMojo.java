@@ -2,6 +2,7 @@ package ie.corballis.treeway;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.shared.model.fileset.FileSet;
 
 public abstract class AbstractTreewayMojo extends AbstractMojo {
 
@@ -29,8 +30,8 @@ public abstract class AbstractTreewayMojo extends AbstractMojo {
     @Parameter(property = "packageName", defaultValue = "com.corballis")
     protected String packageName = "com.corballis";
 
-    @Parameter(property = "revengFile", defaultValue = "${basedir}/src/main/resources/reveng.xml")
-    protected String revengFile = "${basedir}/src/main/resources/reveng.xml";
+    @Parameter(property = "revengFile", required = true)
+    protected FileSet revengFile;
 
     @Parameter(property = "propertyFile", defaultValue = "${basedir}/src/main/resources/hibernate.properties")
     protected String propertyFile = "${basedir}/src/main/resources/hibernate.properties";
@@ -95,7 +96,7 @@ public abstract class AbstractTreewayMojo extends AbstractMojo {
         this.packageName = packageName;
     }
 
-    public void setRevengFile(String revengFile) {
+    public void setRevengFile(FileSet revengFile) {
         this.revengFile = revengFile;
     }
 
