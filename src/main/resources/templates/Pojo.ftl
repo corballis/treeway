@@ -31,5 +31,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import javax.validation.constraints.*;
 import javax.persistence.*;
+import org.hibernate.annotations.Type;
 ${classbody}
 
