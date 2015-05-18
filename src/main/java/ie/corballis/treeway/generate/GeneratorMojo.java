@@ -69,7 +69,7 @@ public class GeneratorMojo extends AbstractHibernateMojo {
 
     public static void main(String[] args) throws MojoFailureException, MojoExecutionException {
         GeneratorMojo generatorMojo = new GeneratorMojo();
-        generatorMojo.migrationVersion = "V2";
+        generatorMojo.migrationVersion = "V1";
         generatorMojo.driver = "org.postgresql.Driver";
         generatorMojo.url = "jdbc:postgresql://localhost:5432/sms";
         generatorMojo.user = "sms";
