@@ -31,7 +31,7 @@
             obj.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
         </#if>
         }
-        <#elseif c2h.isManyToOne(property)>
+        <#elseif c2h.isManyToOne(property) && templateUtil.isOtherSideGenerated(property, cfg)>
         ${property.name}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
         </#if>
     }
