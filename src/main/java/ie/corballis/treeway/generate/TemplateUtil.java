@@ -93,7 +93,12 @@ public class TemplateUtil {
         while (collectionMappings.hasNext()) {
             Set next = (Set) collectionMappings.next();
             ArrayList<Selectable> collectionColumns = newArrayList(next.getKey().getColumnIterator());
-            if (propertyColumns.equals(collectionColumns)) {
+            // this will only work for simple foreign keys for now
+            if (propertyColumns.equals(collectionColumns) && propertyColumns.get(0)
+                                                                            .getValue()
+                                                                            .getTable()
+                                                                            .equals(((Column) collectionColumns.get(0)).getValue()
+                                                                                                                       .getTable())) {
                 return true;
             }
         }

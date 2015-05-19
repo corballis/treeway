@@ -33,5 +33,7 @@ import com.fasterxml.jackson.databind.annotation.*;
 import javax.validation.constraints.*;
 import javax.persistence.*;
 import org.hibernate.annotations.Type;
+import com.corballis.data.json.deserializer.*;
+import com.corballis.data.json.serializer.*;
 ${classbody}
 

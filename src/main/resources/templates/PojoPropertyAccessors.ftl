@@ -23,7 +23,7 @@
         checkNotNull(${property.name}, "${property.name?capitalize} must be present");
         </#if>
         this.${property.name} = ${property.name};
-        <#if c2h.isCollection(property)>
+        <#if c2h.isCollection(property) && templateUtil.isOtherSideGenerated(property, cfg)>
         for (${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} obj : ${property.name}) {
         <#if c2h.isOneToMany(property)>
             obj.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);
@@ -41,7 +41,7 @@
         this.get${pojo.getPropertyName(property)}().add(${singularizedPropertyName});
         <#if c2h.isOneToMany(property)>
         ${singularizedPropertyName}.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);
-        <#else>
+        <#elseif templateUtil.isOtherSideGenerated(property, cfg)>
         ${singularizedPropertyName}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
         </#if>
     }
