@@ -20,7 +20,7 @@
     
     ${pojo.getPropertySetModifiers(property)} void set${pojo.getPropertyName(property)}(${pojo.getJavaTypeName(property, jdk5)} ${property.name}) {
         <#if c2h.isCollection(property)>
-        checkNotNull(${property.name}, "${property.name?capitalize} must be present");
+        checkNotNull(${property.name}, "${property.name} must be present");
         </#if>
         this.${property.name} = ${property.name};
         <#if c2h.isCollection(property) && templateUtil.isOtherSideGenerated(property, cfg)>
@@ -32,12 +32,14 @@
         </#if>
         }
         <#elseif c2h.isManyToOne(property) && templateUtil.isOtherSideGenerated(property, cfg)>
-        ${property.name}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
+        if (${property.name} != null) {
+            ${property.name}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
+        }
         </#if>
     }
 
     <#if c2h.isCollection(property)>
-    ${pojo.getPropertySetModifiers(property)} void add${singularizedPropertyName?capitalize}(${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} ${singularizedPropertyName}) {
+    ${pojo.getPropertySetModifiers(property)} void addTo${singularizedPropertyName?cap_first}(${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} ${singularizedPropertyName}) {
         this.get${pojo.getPropertyName(property)}().add(${singularizedPropertyName});
         <#if c2h.isOneToMany(property)>
         ${singularizedPropertyName}.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);

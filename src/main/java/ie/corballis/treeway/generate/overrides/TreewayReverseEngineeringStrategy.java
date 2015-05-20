@@ -32,4 +32,25 @@ public class TreewayReverseEngineeringStrategy extends DelegatingReverseEngineer
 
         return name;
     }
+
+    @Override
+    public String foreignKeyToCollectionName(String keyname,
+                                             TableIdentifier fromTable,
+                                             List fromColumns,
+                                             TableIdentifier referencedTable,
+                                             List referencedColumns,
+                                             boolean uniqueReference) {
+        String name = super.foreignKeyToCollectionName(keyname,
+                                                       fromTable,
+                                                       fromColumns,
+                                                       referencedTable,
+                                                       referencedColumns,
+                                                       uniqueReference);
+
+        if (!uniqueReference && name.endsWith("Id")) {
+            name = name.substring(0, name.length() - 2);
+        }
+
+        return name;
+    }
 }
