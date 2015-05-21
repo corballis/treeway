@@ -57,7 +57,7 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
                 Iterator properties = pc.getPropertyClosureIterator();
                 while (properties.hasNext() ) {
                     Property manyProperty = (Property) properties.next();
-                    MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse_annotation");
+                    MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
                     if (inverseAnnotation != null) {
                         appendNewAnnotations(annotations, inverseAnnotation);
                     }
