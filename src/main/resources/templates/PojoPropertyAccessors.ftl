@@ -23,29 +23,31 @@
         checkNotNull(${property.name}, "${property.name} must be present");
         </#if>
         this.${property.name} = ${property.name};
-        <#if c2h.isCollection(property) && templateUtil.isOtherSideGenerated(property, cfg)>
+        <#if c2h.isCollection(property) && templateUtil.isOtherSideGeneratedForCollection(property, cfg)>
         for (${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} obj : ${property.name}) {
         <#if c2h.isOneToMany(property)>
-            obj.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);
+            obj.${templateUtil.getOneToManySetter(property)}(this);
         <#else>
-            obj.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
+            obj.${templateUtil.getGetterName(pojo, property)}().add(this);
         </#if>
         }
         <#elseif c2h.isManyToOne(property) && templateUtil.isOtherSideGenerated(property, cfg)>
         if (${property.name} != null) {
-            ${property.name}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
+            ${property.name}.${templateUtil.getGetterName(pojo, property)}().add(this);
         }
         </#if>
     }
 
     <#if c2h.isCollection(property)>
-    ${pojo.getPropertySetModifiers(property)} void addTo${singularizedPropertyName?cap_first}(${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} ${singularizedPropertyName}) {
-        this.get${pojo.getPropertyName(property)}().add(${singularizedPropertyName});
-        <#if c2h.isOneToMany(property)>
-        ${singularizedPropertyName}.${templateUtil.getSetterName(pojo.getDeclarationName(), singularizedPropertyName)}(this);
-        <#elseif templateUtil.isOtherSideGenerated(property, cfg)>
-        ${singularizedPropertyName}.${templateUtil.getGetterName(pojo.getDeclarationName(), property.name)}().add(this);
-        </#if>
+    ${pojo.getPropertySetModifiers(property)} void addTo${property.name?cap_first}(${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} ${templateUtil.collectionTableName(property)}) {
+        if (${templateUtil.collectionTableName(property)} != null) {
+            this.get${pojo.getPropertyName(property)}().add(${templateUtil.collectionTableName(property)});
+            <#if c2h.isOneToMany(property)>
+            ${templateUtil.collectionTableName(property)}.${templateUtil.getOneToManySetter(property)}(this);
+            <#elseif templateUtil.isOtherSideGenerated(property, cfg)>
+            ${templateUtil.collectionTableName(property)}.${templateUtil.getGetterName(pojo, property)}().add(this);
+            </#if>
+        }
     }
     </#if>
 </#if>

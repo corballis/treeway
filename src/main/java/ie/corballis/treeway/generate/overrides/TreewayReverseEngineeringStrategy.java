@@ -3,8 +3,13 @@ package ie.corballis.treeway.generate.overrides;
 import org.hibernate.cfg.reveng.DelegatingReverseEngineeringStrategy;
 import org.hibernate.cfg.reveng.ReverseEngineeringStrategy;
 import org.hibernate.cfg.reveng.TableIdentifier;
+import org.hibernate.mapping.Column;
 
 import java.util.List;
+
+import static java.beans.Introspector.decapitalize;
+import static org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil.simplePluralize;
+import static org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil.toUpperCamelCase;
 
 public class TreewayReverseEngineeringStrategy extends DelegatingReverseEngineeringStrategy {
 
@@ -19,18 +24,15 @@ public class TreewayReverseEngineeringStrategy extends DelegatingReverseEngineer
                                          TableIdentifier referencedTable,
                                          List referencedColumnNames,
                                          boolean uniqueReference) {
-        String name = super.foreignKeyToEntityName(keyname,
-                                                   fromTable,
-                                                   fromColumnNames,
-                                                   referencedTable,
-                                                   referencedColumnNames,
-                                                   uniqueReference);
 
-        if (!uniqueReference && name.endsWith("Id")) {
-            name = name.substring(0, name.length() - 2);
+        // for now we assume there will only be simple foreign keys with only one column
+        String name = ((Column) fromColumnNames.get(0)).getName();
+
+        if (name.endsWith("_id")) {
+            name = name.substring(0, name.length() - 3);
         }
 
-        return name;
+        return columnToPropertyName(null, name);
     }
 
     @Override
@@ -40,17 +42,24 @@ public class TreewayReverseEngineeringStrategy extends DelegatingReverseEngineer
                                              TableIdentifier referencedTable,
                                              List referencedColumns,
                                              boolean uniqueReference) {
-        String name = super.foreignKeyToCollectionName(keyname,
-                                                       fromTable,
-                                                       fromColumns,
-                                                       referencedTable,
-                                                       referencedColumns,
-                                                       uniqueReference);
+        if (uniqueReference) {
+            return super.foreignKeyToCollectionName(keyname,
+                                                    fromTable,
+                                                    fromColumns,
+                                                    referencedTable,
+                                                    referencedColumns,
+                                                    uniqueReference);
+        } else {
+            // for now we assume there will only be simple foreign keys with only one column
+            String foreignKeyName = ((Column) fromColumns.get(0)).getName();
+            if (foreignKeyName.endsWith("_id")) {
+                foreignKeyName = foreignKeyName.substring(0, foreignKeyName.length() - 3);
+            }
 
-        if (!uniqueReference && name.endsWith("Id")) {
-            name = name.substring(0, name.length() - 2);
+            String tableName = simplePluralize(decapitalize(toUpperCamelCase(fromTable.getName())));
+            String columnName = toUpperCamelCase(columnToPropertyName(null, foreignKeyName));
+
+            return tableName + "For" + columnName;
         }
-
-        return name;
     }
 }
