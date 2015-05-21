@@ -20,7 +20,9 @@
     
     ${pojo.getPropertySetModifiers(property)} void set${pojo.getPropertyName(property)}(${pojo.getJavaTypeName(property, jdk5)} ${property.name}) {
         <#if c2h.isCollection(property)>
-        checkNotNull(${property.name}, "${property.name} must be present");
+        if (${property.name} == null) {
+           ${property.name} = new HashSet<${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")}>();
+        }
         </#if>
         this.${property.name} = ${property.name};
         <#if c2h.isCollection(property) && templateUtil.isOtherSideGeneratedForCollection(property, cfg)>
