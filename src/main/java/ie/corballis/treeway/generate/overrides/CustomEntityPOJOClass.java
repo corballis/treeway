@@ -3,11 +3,14 @@ package ie.corballis.treeway.generate.overrides;
 import com.google.common.base.Joiner;
 import ie.corballis.treeway.generate.TemplateUtil;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.JDBCMetaDataConfiguration;
+import org.hibernate.cfg.reveng.TableIdentifier;
 import org.hibernate.mapping.*;
 import org.hibernate.tool.hbm2x.Cfg2JavaTool;
 import org.hibernate.tool.hbm2x.pojo.EntityPOJOClass;
 
 import java.util.Iterator;
+import java.util.Map;
 
 public class CustomEntityPOJOClass extends EntityPOJOClass {
 
@@ -45,21 +48,38 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
     public String generateCollectionAnnotation(Property property, Configuration cfg) {
         StringBuilder annotations = new StringBuilder(super.generateCollectionAnnotation(property, cfg));
         Value value = property.getValue();
-        if ( value != null && value instanceof Collection) {
+        if (value != null && value instanceof Collection) {
             Collection collection = (Collection) value;
-            if ( collection.isInverse() ) {
-                PersistentClass pc = null;
-                if ( collection.isOneToMany() ) {
-                    pc = cfg.getClassMapping( ((OneToMany) collection.getElement()).getReferencedEntityName());
-                } else {
-                    pc = cfg.getClassMapping( ((ManyToOne) collection.getElement()).getReferencedEntityName());
+            if (collection.isOneToMany()) {
+                if (collection.isInverse()) {
+                    PersistentClass pc;
+                    if (collection.isOneToMany()) {
+                        pc = cfg.getClassMapping(((OneToMany) collection.getElement()).getReferencedEntityName());
+                    } else {
+                        pc = cfg.getClassMapping(((ManyToOne) collection.getElement()).getReferencedEntityName());
+                    }
+                    Iterator properties = pc.getPropertyClosureIterator();
+                    while (properties.hasNext()) {
+                        Property manyProperty = (Property) properties.next();
+                        MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
+                        if (inverseAnnotation != null) {
+                            appendNewAnnotations(annotations, inverseAnnotation);
+                        }
+                    }
                 }
-                Iterator properties = pc.getPropertyClosureIterator();
-                while (properties.hasNext() ) {
-                    Property manyProperty = (Property) properties.next();
-                    MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
-                    if (inverseAnnotation != null) {
-                        appendNewAnnotations(annotations, inverseAnnotation);
+            } else {
+                // ManyToMany
+                Column column = (Column) collection.getKey().getColumnIterator().next();
+                Table joinTable = column.getValue().getTable();
+                TableIdentifier tableIdentifier =
+                    new TableIdentifier(joinTable.getCatalog(), joinTable.getSchema(), joinTable.getName());
+                Map metaAttributes = ((JDBCMetaDataConfiguration) cfg).getReverseEngineeringStrategy()
+                                                                      .columnToMetaAttributes(tableIdentifier,
+                                                                                              column.getName());
+                if (metaAttributes != null) {
+                    MetaAttribute metaAnnotations = (MetaAttribute) metaAttributes.get("annotation");
+                    if (metaAnnotations != null) {
+                        appendNewAnnotations(annotations, metaAnnotations);
                     }
                 }
             }
