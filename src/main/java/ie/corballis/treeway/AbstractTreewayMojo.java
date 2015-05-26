@@ -9,8 +9,11 @@ public abstract class AbstractTreewayMojo extends AbstractMojo {
     @Parameter(property = "resourcePath", defaultValue = "${basedir}/src/main/resources/treeway")
     protected String resourcePath = "${basedir}/src/main/resources/treeway";
 
-    @Parameter(property = "targetPath", defaultValue = "${basedir}/src/main/generated")
-    protected String targetPath = "${basedir}/src/main/generated";
+    @Parameter(property = "targetPath", defaultValue = "${basedir}/src/main/generated/sources")
+    protected String targetPath = "${basedir}/src/main/generated/sources";
+
+    @Parameter(property = "migrationTargetPath", defaultValue = "${basedir}/src/main/generated/migration")
+    protected String migrationTargetPath = "${basedir}/src/main/generated/migration";
 
     @Parameter(property = "migrationVersion", required = true)
     protected String migrationVersion;
@@ -62,6 +65,15 @@ public abstract class AbstractTreewayMojo extends AbstractMojo {
         this.templateName = mojo.templateName;
         this.templatePaths = mojo.templatePaths;
         this.filePattern = mojo.filePattern;
+        this.migrationTargetPath = mojo.migrationTargetPath;
+    }
+
+    public String getMigrationTargetPath() {
+        return migrationTargetPath;
+    }
+
+    public void setMigrationTargetPath(String migrationTargetPath) {
+        this.migrationTargetPath = migrationTargetPath;
     }
 
     public void setResourcePath(String resourcePath) {

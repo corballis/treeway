@@ -24,7 +24,7 @@ public class CopyMigrationsMojoTest {
     public void setUp() {
         copyMigrationsMojo = new CopyMigrationsMojo();
         copyMigrationsMojo.setResourcePath(RESOURCE_PATH);
-        copyMigrationsMojo.setTargetPath(TARGET_PATH);
+        copyMigrationsMojo.setMigrationTargetPath(TARGET_PATH);
     }
 
     @After

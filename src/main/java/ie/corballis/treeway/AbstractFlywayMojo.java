@@ -24,7 +24,7 @@ public abstract class AbstractFlywayMojo extends AbstractTreewayMojo {
         properties.setProperty("flyway.password", password);
         flyway.configure(properties);
 
-        File targetDirectory = new File(targetPath);
+        File targetDirectory = new File(migrationTargetPath);
         flyway.setLocations(Location.FILESYSTEM_PREFIX + targetDirectory.getAbsolutePath());
 
         return flyway;

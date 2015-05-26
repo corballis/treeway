@@ -29,10 +29,10 @@ public class CopyMigrationsMojo extends AbstractTreewayMojo {
 
         try {
             getLog().debug("Treeway resource path: " + resourcePath);
-            getLog().debug("Treeway target path: " + targetPath);
+            getLog().debug("Treeway migration target path: " + migrationTargetPath);
             getLog().debug("Treeway migration version: " + migrationVersion);
 
-            cleanupTargetFolder();
+            cleanupMigrationTargetFolder();
 
             MigrationCollector migrationCollector = new MigrationCollector(migrationVersion, resourcePath);
 
@@ -45,14 +45,14 @@ public class CopyMigrationsMojo extends AbstractTreewayMojo {
         }
     }
 
-    private void cleanupTargetFolder() throws IOException {
-        FileUtils.deleteDirectory(new File(targetPath));
-        getLog().info("Target folder: " + targetPath + " has been deleted");
+    private void cleanupMigrationTargetFolder() throws IOException {
+        FileUtils.deleteDirectory(new File(migrationTargetPath));
+        getLog().info("Migration target folder: " + migrationTargetPath + " has been deleted");
     }
 
     private void copyMigrations(List<File> migrations) throws IOException {
         for (File migration : migrations) {
-            FileUtils.copyFile(migration, new File(targetPath + "/" + replaceMigrationVersion(migration)));
+            FileUtils.copyFile(migration, new File(migrationTargetPath + "/" + replaceMigrationVersion(migration)));
             getLog().info("Migration has been copied: " + migration.getName());
         }
     }
@@ -67,8 +67,8 @@ public class CopyMigrationsMojo extends AbstractTreewayMojo {
         this.resourcePath = resourcePath;
     }
 
-    public void setTargetPath(String targetPath) {
-        this.targetPath = targetPath;
+    public void setMigrationTargetPath(String targetPath) {
+        this.migrationTargetPath = targetPath;
     }
 
     public void setMigrationVersion(String migrationVersion) {
