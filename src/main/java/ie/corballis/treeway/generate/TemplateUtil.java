@@ -1,16 +1,19 @@
 package ie.corballis.treeway.generate;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.twitter.elephantbird.util.Strings;
+import ie.corballis.treeway.generate.overrides.CustomEntityPOJOClass;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil;
-import org.hibernate.mapping.Property;
+import org.hibernate.mapping.*;
 import org.hibernate.tool.hbm2x.Cfg2HbmTool;
-import org.hibernate.tool.hbm2x.pojo.POJOClass;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+
+import static com.google.common.base.CaseFormat.LOWER_CAMEL;
+import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil.toUpperCamelCase;
 
 public class TemplateUtil {
 
@@ -22,62 +25,128 @@ public class TemplateUtil {
         return Strings.singularize(plural);
     }
 
-    public boolean idRequired(POJOClass pojoClass) {
-        return pojoClass.getExtends().isEmpty();
+    public String getGetterName(CustomEntityPOJOClass pojo, Property property) {
+        return "get" + getAccessorName(pojo, property);
     }
 
-    public String getGetterName(String declarationName, String propertyName) {
-        return "get" + simplePluralize(declarationName) + cutPropertyNameLeading(propertyName, "By", "For");
+    private String getAccessorName(CustomEntityPOJOClass pojo, Property property) {
+        String getterName = simplePluralize(pojo.getDeclarationName());
 
+        if (!isUniqueReference(property)) {
+            getterName += "For" + toUpperCamelCase(property.getName());
+        }
+
+        return getterName;
     }
 
-    public String getSetterName(String declarationName, String singularizedPropertyName) {
-        return "set" + declarationName + cutPropertyNameLeading(singularizedPropertyName, "For", "By");
+    private boolean isUniqueReference(Property property) {
+        if (property.getValue() instanceof ToOne) {
+            ToOne toOne = (ToOne) property.getValue();
+            String referencedEntityName = toOne.getReferencedEntityName();
+            Column propertyColumn = (Column) property.getColumnIterator().next();
+
+            Iterator foreignKeyIterator = property.getValue().getTable().getForeignKeyIterator();
+            while (foreignKeyIterator.hasNext()) {
+                ForeignKey element = (ForeignKey) foreignKeyIterator.next();
+                if (referencedEntityName.equals(element.getReferencedEntityName()) &&
+                    !propertyColumn.equals(element.getColumn(0))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
-    private String cutPropertyNameLeading(String propertyName, String separator, String replaceSeparator) {
-        Iterator<String> propertyNameElements = Lists.newArrayList(splitByUpperCase(propertyName)).iterator();
+    public String getSetterName(CustomEntityPOJOClass pojo, Property property) {
+        String setterName = "set";
 
-        while (propertyNameElements.hasNext()) {
-            String element = propertyNameElements.next();
-            propertyNameElements.remove();
-            if (element.equals(separator)) {
-                break;
+        if (property.getValue() instanceof Set) {
+            Column column = (Column) ((Set) property.getValue()).getKey().getColumnIterator().next();
+            setterName += toUpperCamelCase(column.getName());
+        } else {
+            setterName += pojo.getDeclarationName();
+
+            if (!isUniqueReference(property)) {
+                setterName += "For" + toUpperCamelCase(property.getName());
             }
         }
 
-        ArrayList<String> elementList = Lists.newArrayList(propertyNameElements);
+        return setterName;
+    }
 
-        if (!elementList.isEmpty()) {
-            return replaceSeparator + Joiner.on("").join(elementList);
+    public String getOneToManySetter(Property property) {
+        Column column = (Column) ((Set) property.getValue()).getKey().getColumnIterator().next();
+        String name = column.getName();
+
+        if (name.endsWith("_id")) {
+            name = name.substring(0, name.length() - 3);
         }
+        return "set" + toUpperCamelCase(name);
+    }
 
-        return "";
+    public String collectionTableName(Property property) {
+        return LOWER_UNDERSCORE.to(LOWER_CAMEL, ((Set) property.getValue()).getCollectionTable().getName());
     }
 
     public static String[] splitByUpperCase(String propertyName) {
         return propertyName.split("(?=\\p{Upper})");
     }
 
-    private String cutPropertyNameTrailing(String propertyName, String... separators) {
-        List<String> separatorList = Lists.newArrayList(separators);
-        List<String> propertyNameElementList = Lists.newArrayList();
-
-        Iterator<String> propertyNameElements = Lists.newArrayList(splitByUpperCase(propertyName)).iterator();
-        while (propertyNameElements.hasNext()) {
-            String element = propertyNameElements.next();
-            if (separatorList.contains(element)) {
-                break;
-            }
-            propertyNameElementList.add(element);
-        }
-
-        return Joiner.on("").join(propertyNameElementList);
-    }
-
     public static String getPropertyName(Property property, Cfg2HbmTool cfg2HbmTool) {
         return cfg2HbmTool.isCollection(property) ? ReverseEngineeringStrategyUtil.simplePluralize(property.getName()) : property
                                                                                                                              .getName();
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean isOtherSideGenerated(Property property, Configuration configuration) {
+        ArrayList<Column> propertyColumns = newArrayList(property.getColumnIterator());
+
+        Iterator collectionMappings = configuration.getCollectionMappings();
+        while (collectionMappings.hasNext()) {
+            Set next = (Set) collectionMappings.next();
+            ArrayList<Selectable> collectionColumns = newArrayList(next.getKey().getColumnIterator());
+            // this will only work for simple foreign keys for now
+            if (propertyColumns.equals(collectionColumns) && propertyColumns.get(0)
+                                                                            .getValue()
+                                                                            .getTable()
+                                                                            .equals(((Column) collectionColumns.get(0)).getValue()
+                                                                                                                       .getTable())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean isOtherSideGeneratedForCollection(Property property, Configuration configuration) {
+        Set propertySet = (Set) property.getValue();
+        Value propertyElement = propertySet.getElement();
+
+        if (propertyElement instanceof OneToMany) {
+            return true;
+        } else if (propertyElement instanceof ManyToOne) {
+            Iterator collectionMappings = configuration.getCollectionMappings();
+
+            while (collectionMappings.hasNext()) {
+                Set currentCollectionSet = (Set) collectionMappings.next();
+                Selectable firstPropertyKeyColumn = propertySet.getKey().getColumnIterator().next();
+                Selectable firstPropertyElementColumn = propertyElement.getColumnIterator().next();
+                Selectable firstCollectionElementColumn = currentCollectionSet.getElement().getColumnIterator().next();
+                Selectable firstCollectionKeyColumn = currentCollectionSet.getKey().getColumnIterator().next();
+
+                boolean referToTheSameTable =
+                    currentCollectionSet.getCollectionTable().equals(propertySet.getCollectionTable());
+                boolean isInverse = firstPropertyKeyColumn.equals(firstCollectionElementColumn) &&
+                                    firstPropertyElementColumn.equals(firstCollectionKeyColumn);
+
+                if (referToTheSameTable && isInverse) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }

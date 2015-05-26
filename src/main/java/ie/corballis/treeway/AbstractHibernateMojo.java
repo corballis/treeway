@@ -30,6 +30,7 @@ public abstract class AbstractHibernateMojo extends AbstractTreewayMojo {
         Project project = new Project();
         String revengFiles = getRevengFiles();
         configurationTask.setRevEngFile(new Path(project, revengFiles));
+        configurationTask.setReverseStrategy("ie.corballis.treeway.generate.overrides.TreewayReverseEngineeringStrategy");
         configurationTask.setPropertyFile(new File(propertyFile));
         doExecute(configurationTask.getConfiguration());
     }
