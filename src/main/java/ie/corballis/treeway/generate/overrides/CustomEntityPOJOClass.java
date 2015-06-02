@@ -12,6 +12,8 @@ import org.hibernate.tool.hbm2x.pojo.EntityPOJOClass;
 import java.util.Iterator;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class CustomEntityPOJOClass extends EntityPOJOClass {
 
     public CustomEntityPOJOClass(PersistentClass clazz, Cfg2JavaTool cfg) {
@@ -54,6 +56,7 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
                 if (collection.isInverse()) {
                     PersistentClass pc;
                     if (collection.isOneToMany()) {
+                        addOrphanRemovalClause(property, annotations);
                         pc = cfg.getClassMapping(((OneToMany) collection.getElement()).getReferencedEntityName());
                     } else {
                         pc = cfg.getClassMapping(((ManyToOne) collection.getElement()).getReferencedEntityName());
@@ -85,6 +88,13 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
             }
         }
         return annotations.toString();
+    }
+
+    private void addOrphanRemovalClause(Property property, StringBuilder annotations) {
+        java.util.List<String> cascadeElements = newArrayList(property.getCascade().split(", "));
+        if (cascadeElements.contains("orphan-removal")) {
+            annotations.insert(11, "orphanRemoval=true, ");
+        }
     }
 
     private void appendNewAnnotations(StringBuilder annotations, MetaAttribute inverseAnnotation) {

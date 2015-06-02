@@ -2,18 +2,13 @@
 <#assign pluralizedDeclarationName = templateUtil.simplePluralize(pojo.getDeclarationName())/>
 <#foreach property in pojo.getAllPropertiesIterator()>
 <#assign singularizedPropertyName = templateUtil.singularize(property.name)/>
-<#if property.getMetaAttribute("annotation")??>
-<#foreach value in property.getMetaAttribute("annotation").getValues()>
-    ${value}
-</#foreach>
-</#if>
 <#if pojo.getMetaAttribAsBool(property, "gen-property", true)>
  <#if pojo.hasFieldJavaDoc(property)>    
     /**       
      * ${pojo.getFieldJavaDoc(property, 4)}
      */
 </#if>
-    <#include "GetPropertyAnnotation.ftl"/>
+
     ${pojo.getPropertyGetModifiers(property)} ${pojo.getJavaTypeName(property, jdk5)} ${pojo.getGetterSignature(property)}() {
         return this.${property.name};
     }
@@ -23,8 +18,11 @@
         if (${property.name} == null) {
            ${property.name} = new HashSet<${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")}>();
         }
-        </#if>
+        this.${property.name}.clear();
+        this.${property.name}.addAll(${property.name});
+        <#else>
         this.${property.name} = ${property.name};
+        </#if>
         <#if c2h.isCollection(property) && templateUtil.isOtherSideGeneratedForCollection(property, cfg)>
         for (${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} obj : ${property.name}) {
         <#if c2h.isOneToMany(property)>
