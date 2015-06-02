@@ -2,6 +2,7 @@ package ie.corballis.treeway.generate.overrides;
 
 import com.google.common.base.Joiner;
 import ie.corballis.treeway.generate.TemplateUtil;
+import org.hibernate.FetchMode;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.JDBCMetaDataConfiguration;
 import org.hibernate.cfg.reveng.TableIdentifier;
@@ -102,5 +103,23 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
             annotations.append("\n");
         }
         annotations.append(Joiner.on("\n").join(inverseAnnotation.getValues()));
+    }
+
+    @Override
+    public String getFetchType(Property property) {
+        Value value = property.getValue();
+        String fetchType = importType("javax.persistence.FetchType");
+        boolean lazy = false;
+        if (value instanceof ToOne || value instanceof Collection) {
+            lazy = value.getFetchMode().equals(FetchMode.SELECT);
+        } else {
+            //we're not collection neither *toone so we are looking for property fetching
+            lazy = property.isLazy();
+        }
+        if (lazy) {
+            return fetchType + "." + "LAZY";
+        } else {
+            return fetchType + "." + "EAGER";
+        }
     }
 }
