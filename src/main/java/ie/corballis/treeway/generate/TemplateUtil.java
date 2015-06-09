@@ -126,19 +126,7 @@ public class TemplateUtil {
         Value propertyElement = propertySet.getElement();
 
         if (propertyElement instanceof OneToMany) {
-            Column foreignColumn = (Column) ((Set) property.getValue()).getKey().getColumnIterator().next();
-            String name = foreignColumn.getName();
-            if (name.endsWith("_id")) {
-                name = name.substring(0, name.length() - 3);
-                name = WordUtils.uncapitalize(toUpperCamelCase(name));
-
-                PersistentClass associatedClass = ((OneToMany) propertyElement).getAssociatedClass();
-                if (!persistentClassHasProperty(associatedClass, name)) {
-                    return false;
-                }
-            }
-
-            return true;
+            return isOneToManyAndHasReferenceOnTheOtherSide(property);
         } else if (propertyElement instanceof ManyToOne) {
             Iterator collectionMappings = configuration.getCollectionMappings();
 
@@ -158,6 +146,30 @@ public class TemplateUtil {
                     return true;
                 }
             }
+        }
+
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean isOneToManyAndHasReferenceOnTheOtherSide(Property property) {
+        Set propertySet = (Set) property.getValue();
+        Value propertyElement = propertySet.getElement();
+
+        if (propertyElement instanceof OneToMany) {
+            Column foreignColumn = (Column) ((Set) property.getValue()).getKey().getColumnIterator().next();
+            String name = foreignColumn.getName();
+            if (name.endsWith("_id")) {
+                name = name.substring(0, name.length() - 3);
+                name = WordUtils.uncapitalize(toUpperCamelCase(name));
+
+                PersistentClass associatedClass = ((OneToMany) propertyElement).getAssociatedClass();
+                if (!persistentClassHasProperty(associatedClass, name)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         return false;
