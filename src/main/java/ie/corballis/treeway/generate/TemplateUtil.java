@@ -2,6 +2,8 @@ package ie.corballis.treeway.generate;
 
 import com.twitter.elephantbird.util.Strings;
 import ie.corballis.treeway.generate.overrides.CustomEntityPOJOClass;
+import org.apache.commons.lang.WordUtils;
+import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil;
 import org.hibernate.mapping.*;
@@ -124,6 +126,18 @@ public class TemplateUtil {
         Value propertyElement = propertySet.getElement();
 
         if (propertyElement instanceof OneToMany) {
+            Column foreignColumn = (Column) ((Set) property.getValue()).getKey().getColumnIterator().next();
+            String name = foreignColumn.getName();
+            if (name.endsWith("_id")) {
+                name = name.substring(0, name.length() - 3);
+                name = WordUtils.uncapitalize(toUpperCamelCase(name));
+
+                PersistentClass associatedClass = ((OneToMany) propertyElement).getAssociatedClass();
+                if (!persistentClassHasProperty(associatedClass, name)) {
+                    return false;
+                }
+            }
+
             return true;
         } else if (propertyElement instanceof ManyToOne) {
             Iterator collectionMappings = configuration.getCollectionMappings();
@@ -147,6 +161,16 @@ public class TemplateUtil {
         }
 
         return false;
+    }
+
+    private boolean persistentClassHasProperty(PersistentClass persistentClass, String propertyName) {
+        try {
+            persistentClass.getProperty(propertyName);
+        } catch (MappingException e) {
+            return false;
+        }
+
+        return true;
     }
 
 }
