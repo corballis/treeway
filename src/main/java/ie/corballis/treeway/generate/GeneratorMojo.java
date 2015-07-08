@@ -82,7 +82,7 @@ public class GeneratorMojo extends AbstractHibernateMojo {
 
     public static void main(String[] args) throws MojoFailureException, MojoExecutionException {
         GeneratorMojo generatorMojo = new GeneratorMojo();
-        generatorMojo.migrationVersion = "V1";
+        generatorMojo.migrationVersion = "A1";
         generatorMojo.driver = "org.postgresql.Driver";
         generatorMojo.url = "jdbc:postgresql://localhost:5432/sms";
         generatorMojo.user = "sms";
@@ -90,6 +90,7 @@ public class GeneratorMojo extends AbstractHibernateMojo {
         generatorMojo.revengFile = new FileSet();
         generatorMojo.revengFile.setDirectory("src/main/resources/reveng/");
         generatorMojo.revengFile.addInclude("**/*.xml");
+        generatorMojo.revengFile.setFollowSymlinks(false);
         generatorMojo.propertyFile = "src/main/resources/hibernate.properties";
         generatorMojo.resourcePath = "src/main/resources/treeway";
         generatorMojo.targetPath = "src/main/generated";
