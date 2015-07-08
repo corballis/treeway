@@ -27,7 +27,7 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
     }
 
     public boolean isEnum(Property p) {
-        return p.getPersistentClass().getEntityPersisterClass().isEnum();
+        return p.getValue().getType().getReturnedClass().isEnum();
     }
 
     @Override
