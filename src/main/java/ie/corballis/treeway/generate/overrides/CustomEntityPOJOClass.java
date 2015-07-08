@@ -2,6 +2,7 @@ package ie.corballis.treeway.generate.overrides;
 
 import com.google.common.base.Joiner;
 import ie.corballis.treeway.generate.TemplateUtil;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.FetchMode;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.JDBCMetaDataConfiguration;
@@ -26,8 +27,15 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
         return super.getFieldInitialization(p, useGenerics) != null;
     }
 
-    public boolean isEnum(Property p) {
-        return p.getValue().getType().getReturnedClass().isEnum();
+    public boolean isEnum(Property p) throws ClassNotFoundException {
+        Value value = p.getValue();
+        if (value != null && value instanceof SimpleValue) {
+            String typeName = ((SimpleValue) value).getTypeName();
+            if (StringUtils.isNotEmpty(typeName)) {
+                return Class.forName(typeName).isEnum();
+            }
+        }
+        return false;
     }
 
     @Override
