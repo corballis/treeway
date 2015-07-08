@@ -26,6 +26,10 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
         return super.getFieldInitialization(p, useGenerics) != null;
     }
 
+    public boolean isEnum(Property p) {
+        return p.getType().getReturnedClass().isEnum();
+    }
+
     @Override
     public String getGetterSignature(Property p) {
         String signature = super.getGetterSignature(p);

@@ -29,7 +29,7 @@
                                                                                     }))).append('\'');
         </#if>
         <#else>
-        <#if primitive_types?seq_contains(pojo.getJavaTypeName(field, jdk5))>
+        <#if primitive_types?seq_contains(pojo.getJavaTypeName(field, jdk5)) || pojo.isEnum(field)>
         sb.append(", ${field.name}='").append(${field.name}).append('\'');
         <#else>
         sb.append(", ${field.name}='").append(${field.name} == null ? null : ${field.name}.getId()).append('\'');
