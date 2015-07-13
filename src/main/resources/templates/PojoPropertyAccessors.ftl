@@ -53,3 +53,16 @@
     </#if>
 </#if>
 </#foreach>
+<#if pojo.hasMetaAttribute("has-selected-option")>
+    @Override
+    @JsonProperty("selectedOptionValues")
+    @JsonSerialize(using = SelectedOptionSerializer.class)
+    public Multimap< String, SelectedOptionValue> getSelectedOptionValues() {
+    return selectedOptionValues;
+    }
+
+    @Override
+    public void setSelectedOptionValues(Multimap< String, SelectedOptionValue> selectedOptionValues) {
+    this.selectedOptionValues = selectedOptionValues;
+    }
+</#if>

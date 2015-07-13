@@ -52,11 +52,20 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
 
     @Override
     public String getImplements() {
-        String implementsString = super.getImplements();
-        if (implementsString != null && !implementsString.equals("")) {
-            return implementsString + ", Persistable<Long>";
+        StringBuilder implementsString = new StringBuilder(super.getImplements());
+        appendToImplements(implementsString, "Persistable<Long>");
+        if (hasMetaAttribute("has-selected-option")) {
+            appendToImplements(implementsString, "HasSelectedOption");
         }
-        return "Persistable<Long>";
+        return implementsString.toString();
+    }
+
+    private void appendToImplements(StringBuilder implementsString, String implementedClass) {
+        if (implementsString.length() != 0) {
+            implementsString.append(", ").append(implementedClass);
+        } else {
+            implementsString.append(implementedClass);
+        }
     }
 
     @Override
