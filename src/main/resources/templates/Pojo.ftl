@@ -37,6 +37,8 @@ import com.corballis.data.json.deserializer.*;
 import com.corballis.data.json.serializer.*;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+<#if pojo.hasMetaAttribute("has-selected-option")>
 import com.corballis.data.option.*;
+</#if>
 ${classbody}
 
