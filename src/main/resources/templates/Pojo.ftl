@@ -35,10 +35,11 @@ import javax.persistence.*;
 import org.hibernate.annotations.Type;
 import com.corballis.data.json.deserializer.*;
 import com.corballis.data.json.serializer.*;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.Map;
 <#if pojo.hasMetaAttribute("has-selected-option")>
 import com.corballis.data.option.*;
+import static com.google.common.collect.Maps.newHashMap;
 </#if>
 ${classbody}
 
