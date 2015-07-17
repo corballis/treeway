@@ -39,7 +39,8 @@ import java.util.Collection;
 import java.util.Map;
 <#if pojo.hasMetaAttribute("has-selected-option")>
 import com.corballis.data.option.*;
-import static com.google.common.collect.Maps.newHashMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.ArrayListMultimap;
 </#if>
 ${classbody}
 

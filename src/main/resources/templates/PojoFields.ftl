@@ -1,7 +1,7 @@
 <#-- // Fields -->
 <#if pojo.hasMetaAttribute("has-selected-option")>
     @Transient
-    private Map< String, Collection< SelectedOptionValue>> selectedOptionValues = newHashMap();
+    private Multimap<String, SelectedOptionValue> selectedOptionValues = ArrayListMultimap.create();
 </#if>
 <#foreach field in pojo.getAllPropertiesIterator()><#if pojo.getMetaAttribAsBool(field, "gen-property", true)> <#if pojo.hasMetaAttribute(field, "field-description")>    /**
      ${pojo.getFieldJavaDoc(field, 0)}
