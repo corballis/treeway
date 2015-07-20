@@ -1,6 +1,9 @@
 <#-- // Fields -->
 <#if pojo.hasMetaAttribute("has-selected-option")>
     @Transient
+    <#if pojo.hasMetaAttribute("selected-options-filter")>
+    ${pojo.getMetaAsString("selected-options-filter")}
+    </#if>
     private Multimap<String, SelectedOptionValue> selectedOptionValues = ArrayListMultimap.create();
 </#if>
 <#foreach field in pojo.getAllPropertiesIterator()><#if pojo.getMetaAttribAsBool(field, "gen-property", true)> <#if pojo.hasMetaAttribute(field, "field-description")>    /**
