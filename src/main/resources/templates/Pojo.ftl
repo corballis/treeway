@@ -37,10 +37,9 @@ import com.corballis.data.json.deserializer.*;
 import com.corballis.data.json.serializer.*;
 import java.util.Collection;
 import java.util.Map;
+import java.util.List;
 <#if pojo.hasMetaAttribute("has-selected-option")>
 import com.corballis.data.option.*;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.ArrayListMultimap;
 </#if>
 ${classbody}
 
