@@ -56,12 +56,12 @@
 <#if pojo.hasMetaAttribute("has-selected-option")>
     @Override
     @JsonProperty("selectedOptionValues")
-    public Multimap<String, SelectedOptionValue> getSelectedOptionValues() {
+    public List<SelectedOption> getSelectedOptionValues() {
         return selectedOptionValues;
     }
 
     @Override
-    public void setSelectedOptionValues(Multimap<String, SelectedOptionValue> selectedOptionValues) {
+    public void setSelectedOptionValues(List<SelectedOption> selectedOptionValues) {
         this.selectedOptionValues = selectedOptionValues;
     }
 </#if>
