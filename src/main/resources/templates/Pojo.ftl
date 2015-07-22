@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.List;
 <#if pojo.hasMetaAttribute("has-selected-option")>
-import com.corballis.data.option.*;
+import com.corballis.sms.core.option.*;
 </#if>
 ${classbody}
 
