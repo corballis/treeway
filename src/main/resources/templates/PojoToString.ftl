@@ -21,9 +21,9 @@
         sb.append(${field.name} == null ? null : Joiner.on(", ")
                                                        .skipNulls()
                                                        .join(CollectionUtils.collect(${field.name},
-                                                                                    new Transformer<${type}, Long>() {
+                                                                                    new Transformer<${type}, String>() {
                                                                                         @Override
-                                                                                        public Long transform(${type} obj) {
+                                                                                        public String transform(${type} obj) {
                                                                                             return obj.getId();
                                                                                         }
                                                                                     }))).append('\'');
