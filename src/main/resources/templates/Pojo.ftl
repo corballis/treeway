@@ -4,6 +4,7 @@ ${pojo.getPackageDeclaration()}
 <#assign classbody>
 <#include "PojoTypeDeclaration.ftl"/> {
 
+<#include "PojoConstructors.ftl"/>
 <#if !pojo.isInterface()>
 <#include "PojoFields.ftl"/>
 
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import javax.validation.constraints.*;
 import javax.persistence.*;
+import java.util.*;
 import org.hibernate.annotations.Type;
 import com.corballis.data.json.deserializer.*;
 import com.corballis.data.json.serializer.*;
@@ -41,6 +43,7 @@ import java.util.List;
 <#if pojo.hasMetaAttribute("has-selected-option")>
 import static com.google.common.collect.Lists.newArrayList;
 import com.corballis.sms.core.option.*;
+import static com.corballis.sms.core.option.EntityIdToSelectedOptionValuesMapper.addSelectedOptions;
 </#if>
 ${classbody}
 

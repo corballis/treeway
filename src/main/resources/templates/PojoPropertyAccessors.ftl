@@ -62,6 +62,7 @@
 
     @Override
     public void setSelectedOptionValues(List<SelectedOption> selectedOptionValues) {
+        addSelectedOptions(getId(), selectedOptionValues);
         this.selectedOptionValues = selectedOptionValues;
     }
 </#if>
