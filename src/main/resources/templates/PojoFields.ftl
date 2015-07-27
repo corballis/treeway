@@ -4,6 +4,8 @@
     <#if pojo.hasMetaAttribute("selected-options-annotation")>
     ${pojo.getMetaAsString("selected-options-annotation")}
     </#if>
+    @JsonDeserialize(using = SelectedOptionValuesDeserializer.class)
+    @JsonSerialize(using = SelectedOptionValuesSerializer.class)
     private List<SelectedOption> selectedOptionValues = newArrayList();
 </#if>
 <#foreach field in pojo.getAllPropertiesIterator()><#if pojo.getMetaAttribAsBool(field, "gen-property", true)> <#if pojo.hasMetaAttribute(field, "field-description")>    /**
