@@ -55,14 +55,16 @@
 </#foreach>
 <#if pojo.hasMetaAttribute("has-selected-option")>
     @Override
-    @JsonProperty("selectedOptionValues")
+    @JsonDeserialize(using = SelectedOptionValuesDeserializer.class)
+    @JsonSerialize(using = SelectedOptionValuesSerializer.class)
+    @JsonView(AlwaysIncluded.class)
     public List<SelectedOption> getSelectedOptionValues() {
         return selectedOptionValues;
     }
 
     @Override
     public void setSelectedOptionValues(List<SelectedOption> selectedOptionValues) {
-        addSelectedOptions(getId(), selectedOptionValues);
+        addSelectedOptions(getId(), selectedOptionValues, this);
         this.selectedOptionValues = selectedOptionValues;
     }
 </#if>

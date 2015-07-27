@@ -44,6 +44,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import com.corballis.sms.core.option.*;
 import static com.corballis.sms.core.option.EntityIdToSelectedOptionValuesMapper.addSelectedOptions;
+import com.corballis.spring.mvc.utils.client.AlwaysIncluded;
 </#if>
 ${classbody}
 
