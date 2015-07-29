@@ -14,6 +14,9 @@
     }
     
     ${pojo.getPropertySetModifiers(property)} void set${pojo.getPropertyName(property)}(${pojo.getJavaTypeName(property, jdk5)} ${property.name}) {
+        <#if pojo.hasMetaAttribute("generate-uuid") && property.name.equals("id")>
+        this.isNew = false;
+        </#if>
         <#if c2h.isCollection(property)>
         this.${property.name}.isEmpty();
         if (${property.name} == null) {

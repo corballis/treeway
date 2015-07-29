@@ -40,6 +40,7 @@ import com.corballis.data.json.serializer.*;
 import java.util.Collection;
 import java.util.Map;
 import java.util.List;
+import javax.persistence.AccessType;
 <#if pojo.hasMetaAttribute("has-selected-option")>
 import static com.google.common.collect.Lists.newArrayList;
 import com.corballis.sms.core.option.*;

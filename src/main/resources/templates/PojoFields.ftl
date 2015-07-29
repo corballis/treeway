@@ -19,3 +19,7 @@
     </#if>
     private List<SelectedOption> selectedOptionValues = newArrayList();
 </#if>
+<#if pojo.hasMetaAttribute("generate-uuid")>
+    @Transient
+    private boolean isNew;
+</#if>
