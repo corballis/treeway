@@ -24,7 +24,7 @@
                                                                                     new Transformer<${type}, String>() {
                                                                                         @Override
                                                                                         public String transform(${type} obj) {
-                                                                                            return obj.getId();
+                                                                                            return String.valueOf(obj.getId());
                                                                                         }
                                                                                     }))).append('\'');
         </#if>
