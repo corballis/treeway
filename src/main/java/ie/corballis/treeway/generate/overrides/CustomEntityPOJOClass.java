@@ -28,11 +28,17 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
     }
 
     public boolean isEnum(Property p) throws ClassNotFoundException {
-        Value value = p.getValue();
-        if (value != null && value instanceof SimpleValue) {
-            String typeName = ((SimpleValue) value).getTypeName();
-            if (StringUtils.isNotEmpty(typeName)) {
-                return Class.forName(typeName).isEnum();
+        MetaAttribute annotation = p.getMetaAttribute("annotation");
+        if (annotation != null) {
+            if (annotation.isMultiValued()) {
+                for (Object value : annotation.getValues()) {
+                    if (value instanceof String) {
+                        return ((String) value).contains("Enumerated");
+                    }
+                }
+            } else {
+                String value = annotation.getValue();
+                return value.contains("Enumerated");
             }
         }
         return false;
