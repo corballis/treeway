@@ -71,3 +71,9 @@
         this.selectedOptionValues = selectedOptionValues;
     }
 </#if>
+
+<#if pojo.hasMetaAttribute("generate-uuid")>
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+</#if>
