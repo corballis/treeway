@@ -37,6 +37,9 @@
         </#if>
         </#if>
         </#foreach>
+        <#if pojo.hasMetaAttribute("has-selected-option")>
+        sb.append(", selectedOptionValues='").append(selectedOptionValues).append('\'');
+        </#if>
         sb.append('}');
         return sb.toString();
      }
