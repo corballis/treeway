@@ -2,7 +2,6 @@ package ie.corballis.treeway.generate.overrides;
 
 import com.google.common.base.Joiner;
 import ie.corballis.treeway.generate.TemplateUtil;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.FetchMode;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.JDBCMetaDataConfiguration;
@@ -11,8 +10,10 @@ import org.hibernate.mapping.*;
 import org.hibernate.tool.hbm2x.Cfg2JavaTool;
 import org.hibernate.tool.hbm2x.pojo.EntityPOJOClass;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -84,21 +85,39 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
         if (value != null && value instanceof Collection) {
             Collection collection = (Collection) value;
             if (collection.isOneToMany()) {
-                if (collection.isInverse()) {
-                    PersistentClass pc;
-                    if (collection.isOneToMany()) {
-                        addOrphanRemovalClause(property, annotations);
-                        pc = cfg.getClassMapping(((OneToMany) collection.getElement()).getReferencedEntityName());
-                    } else {
-                        pc = cfg.getClassMapping(((ManyToOne) collection.getElement()).getReferencedEntityName());
-                    }
-                    Iterator properties = pc.getPropertyClosureIterator();
-                    while (properties.hasNext()) {
-                        Property manyProperty = (Property) properties.next();
-                        MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
-                        if (inverseAnnotation != null) {
-                            appendNewAnnotations(annotations, inverseAnnotation);
+                Iterator<Selectable> joinColumnsIt = collection.getKey().getColumnIterator();
+                Set<Selectable> joinColumns = new HashSet<Selectable>();
+                while (joinColumnsIt.hasNext()) {
+                    joinColumns.add(joinColumnsIt.next());
+                }
+
+                PersistentClass pc =
+                    cfg.getClassMapping(((OneToMany) collection.getElement()).getReferencedEntityName());
+                Iterator properties = pc.getPropertyClosureIterator();
+
+                boolean isOtherSide = false;
+                while (!isOtherSide && properties.hasNext()) {
+                    Property manyProperty = (Property) properties.next();
+                    Value manyValue = manyProperty.getValue();
+                    if (manyValue != null && manyValue instanceof ManyToOne) {
+                        if (joinColumns.size() == manyValue.getColumnSpan()) {
+                            isOtherSide = true;
+                            Iterator it = manyValue.getColumnIterator();
+                            while (it.hasNext()) {
+                                Object column = it.next();
+                                if (!joinColumns.contains(column)) {
+                                    isOtherSide = false;
+                                    break;
+                                }
+                            }
+                            if (isOtherSide) {
+                                MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
+                                if (inverseAnnotation != null) {
+                                    appendNewAnnotations(annotations, inverseAnnotation);
+                                }
+                            }
                         }
+
                     }
                 }
             } else {
