@@ -11,7 +11,7 @@
         <#if !field.name.equals("id")>
         <#if c2h.isCollection(field)>
         sb.append(", ${field.name}='");
-        <#assign type=pojo.getJavaTypeName(field, jdk5).replaceAll("^Set<(.*)>", "$1")>
+        <#assign type=pojo.getGenericClassName(field)>
         <#if primitive_types?seq_contains(type)>
         sb.append(${field.name} == null ? null : Joiner.on(", ")
                                                        .skipNulls()
@@ -29,7 +29,7 @@
                                                                                     }))).append('\'');
         </#if>
         <#else>
-        <#if primitive_types?seq_contains(pojo.getJavaTypeName(field, jdk5)) || pojo.isEnum(field)>
+        <#if primitive_types?seq_contains(pojo.getJavaTypeName(field, jdk5, cfg)) || pojo.isEnum(field)>
         sb.append(", ${field.name}='").append(${field.name}).append('\'');
         <#else>
         sb.append(", ${field.name}='").append(${field.name} == null ? null : ${field.name}.getId()).append('\'');

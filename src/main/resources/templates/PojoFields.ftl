@@ -9,7 +9,7 @@
      </#foreach>
      </#if>
      <#include "GetPropertyAnnotation.ftl"/>
-     ${pojo.getFieldModifiers(field)} ${pojo.getJavaTypeName(field, jdk5)} ${field.name}<#if pojo.hasFieldInitializor(field, jdk5)> = ${pojo.getFieldInitialization(field, jdk5)}</#if>;
+     ${pojo.getFieldModifiers(field)} ${pojo.getJavaTypeName(field, jdk5, cfg)} ${field.name}<#if pojo.hasFieldInitializor(field, jdk5)> = ${pojo.getFieldInitialization(field, jdk5, cfg)}</#if>;
 </#if>
 </#foreach>
 <#if pojo.hasMetaAttribute("has-selected-option")>

@@ -9,18 +9,18 @@
      */
 </#if>
 
-    ${pojo.getPropertyGetModifiers(property)} ${pojo.getJavaTypeName(property, jdk5)} ${pojo.getGetterSignature(property)}() {
+    ${pojo.getPropertyGetModifiers(property)} ${pojo.getJavaTypeName(property, jdk5, cfg)} ${pojo.getGetterSignature(property)}() {
         return this.${property.name};
     }
     
-    ${pojo.getPropertySetModifiers(property)} void set${pojo.getPropertyName(property)}(${pojo.getJavaTypeName(property, jdk5)} ${property.name}) {
+    ${pojo.getPropertySetModifiers(property)} void set${pojo.getPropertyName(property)}(${pojo.getJavaTypeName(property, jdk5, cfg)} ${property.name}) {
         <#if pojo.hasMetaAttribute("generate-uuid") && property.name.equals("id")>
         this.isNew = false;
         </#if>
         <#if c2h.isCollection(property)>
         this.${property.name}.isEmpty();
         if (${property.name} == null) {
-           ${property.name} = new HashSet<${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")}>();
+           ${property.name} = ${pojo.getFieldInitialization(property, jdk5, cfg)};
         }
         this.${property.name}.clear();
         this.${property.name}.addAll(${property.name});
@@ -28,7 +28,7 @@
         this.${property.name} = ${property.name};
         </#if>
         <#if c2h.isCollection(property) && templateUtil.isOtherSideGeneratedForCollection(property, cfg)>
-        for (${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} obj : ${property.name}) {
+        for (${pojo.getGenericClassName(property)} obj : ${property.name}) {
         <#if c2h.isOneToMany(property)>
             obj.${templateUtil.getOneToManySetter(property)}(this);
         <#else>
@@ -43,7 +43,7 @@
     }
 
     <#if c2h.isCollection(property)>
-    ${pojo.getPropertySetModifiers(property)} void addTo${property.name?cap_first}(${pojo.getJavaTypeName(property, jdk5).replaceAll("^Set<(.*)>", "$1")} ${templateUtil.collectionTableName(property)}) {
+    ${pojo.getPropertySetModifiers(property)} void addTo${property.name?cap_first}(${pojo.getGenericClassName(property)} ${templateUtil.collectionTableName(property)}) {
         if (${templateUtil.collectionTableName(property)} != null) {
             this.get${pojo.getPropertyName(property)}().add(${templateUtil.collectionTableName(property)});
             <#if templateUtil.isOneToManyAndHasReferenceOnTheOtherSide(property)>

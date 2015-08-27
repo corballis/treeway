@@ -1,5 +1,6 @@
 package ie.corballis.treeway.generate.overrides;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import ie.corballis.treeway.generate.TemplateUtil;
 import org.hibernate.FetchMode;
@@ -80,46 +81,23 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
 
     @Override
     public String generateCollectionAnnotation(Property property, Configuration cfg) {
-        StringBuilder annotations = new StringBuilder(super.generateCollectionAnnotation(property, cfg));
+        final StringBuilder annotations = new StringBuilder(super.generateCollectionAnnotation(property, cfg));
         Value value = property.getValue();
         if (value != null && value instanceof Collection) {
             Collection collection = (Collection) value;
             if (collection.isOneToMany()) {
-                Iterator<Selectable> joinColumnsIt = collection.getKey().getColumnIterator();
-                Set<Selectable> joinColumns = new HashSet<Selectable>();
-                while (joinColumnsIt.hasNext()) {
-                    joinColumns.add(joinColumnsIt.next());
-                }
+                addOrphanRemovalClause(property, annotations);
 
-                PersistentClass pc =
-                    cfg.getClassMapping(((OneToMany) collection.getElement()).getReferencedEntityName());
-                Iterator properties = pc.getPropertyClosureIterator();
-
-                boolean isOtherSide = false;
-                while (!isOtherSide && properties.hasNext()) {
-                    Property manyProperty = (Property) properties.next();
-                    Value manyValue = manyProperty.getValue();
-                    if (manyValue != null && manyValue instanceof ManyToOne) {
-                        if (joinColumns.size() == manyValue.getColumnSpan()) {
-                            isOtherSide = true;
-                            Iterator it = manyValue.getColumnIterator();
-                            while (it.hasNext()) {
-                                Object column = it.next();
-                                if (!joinColumns.contains(column)) {
-                                    isOtherSide = false;
-                                    break;
-                                }
-                            }
-                            if (isOtherSide) {
-                                MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
-                                if (inverseAnnotation != null) {
-                                    appendNewAnnotations(annotations, inverseAnnotation);
-                                }
-                            }
+                callFunctionWithInverseProperty(cfg, collection, new Function<Property, Object>() {
+                    @Override
+                    public Object apply(Property manyProperty) {
+                        MetaAttribute inverseAnnotation = manyProperty.getMetaAttribute("inverse-annotation");
+                        if (inverseAnnotation != null) {
+                            appendNewAnnotations(annotations, inverseAnnotation);
                         }
-
+                        return null;
                     }
-                }
+                });
             } else {
                 // ManyToMany
                 Column column = (Column) collection.getKey().getColumnIterator().next();
@@ -138,6 +116,44 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
             }
         }
         return annotations.toString();
+    }
+
+    private <T> T callFunctionWithInverseProperty(Configuration cfg,
+                                                  Collection collection,
+                                                  Function<Property, T> function) {
+        T retVal = null;
+        Iterator<Selectable> joinColumnsIt = collection.getKey().getColumnIterator();
+        Set<Selectable> joinColumns = new HashSet<Selectable>();
+        while (joinColumnsIt.hasNext()) {
+            joinColumns.add(joinColumnsIt.next());
+        }
+        PersistentClass pc = cfg.getClassMapping(((OneToMany) collection.getElement()).getReferencedEntityName());
+        Iterator properties = pc.getPropertyClosureIterator();
+
+        boolean isOtherSide = false;
+        while (!isOtherSide && properties.hasNext()) {
+            Property manyProperty = (Property) properties.next();
+            Value manyValue = manyProperty.getValue();
+            if (manyValue != null && manyValue instanceof ManyToOne) {
+                if (joinColumns.size() == manyValue.getColumnSpan()) {
+                    isOtherSide = true;
+                    Iterator it = manyValue.getColumnIterator();
+                    while (it.hasNext()) {
+                        Object column = it.next();
+                        if (!joinColumns.contains(column)) {
+                            isOtherSide = false;
+                            break;
+                        }
+                    }
+                    if (isOtherSide) {
+                        retVal = function.apply(manyProperty);
+                    }
+                }
+
+            }
+        }
+
+        return retVal;
     }
 
     private void addOrphanRemovalClause(Property property, StringBuilder annotations) {
@@ -170,5 +186,60 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
         } else {
             return fetchType + "." + "EAGER";
         }
+    }
+
+    public String getJavaTypeName(Property property, boolean useGenerics, Configuration configuration) {
+        String javaTypeName = super.getJavaTypeName(property, useGenerics);
+        return getValueOfInverseMeta(property, configuration, javaTypeName, "inverse-type", "Set");
+    }
+
+    public String getFieldInitialization(Property property, boolean useGenerics, Configuration configuration) {
+        String fieldInitialization = super.getFieldInitialization(property, useGenerics);
+        return getValueOfInverseMeta(property,
+                                     configuration,
+                                     fieldInitialization,
+                                     "inverse-default-value-type",
+                                     "HashSet");
+    }
+
+    private String getValueOfInverseMeta(Property property,
+                                         Configuration configuration,
+                                         String defaultValue,
+                                         final String attributeName,
+                                         String oldValue) {
+        Value value = property.getValue();
+        if (value != null && value instanceof Collection) {
+            Collection collection = (Collection) value;
+            if (collection.isOneToMany()) {
+                String overrideTypeName =
+                    callFunctionWithInverseProperty(configuration, collection, new Function<Property, String>() {
+                        @Override
+                        public String apply(Property manyProperty) {
+                            MetaAttribute metaAttribute = manyProperty.getMetaAttribute(attributeName);
+                            if (metaAttribute != null) {
+                                return metaAttribute.getValue();
+                            }
+
+                            return null;
+                        }
+                    });
+
+                if (overrideTypeName != null) {
+                    return defaultValue.replace(oldValue, overrideTypeName);
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    public String getGenericClassName(Property property) {
+        Value value = property.getValue();
+
+        if (value != null && value instanceof Collection) {
+            Collection collection = (Collection) value;
+            return ((OneToMany) collection.getElement()).getAssociatedClass().getJpaEntityName();
+        }
+
+        return null;
     }
 }
