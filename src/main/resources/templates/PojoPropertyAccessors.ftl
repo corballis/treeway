@@ -36,7 +36,7 @@
         </#if>
         }
         <#elseif c2h.isManyToOne(property) && templateUtil.isOtherSideGenerated(property, cfg)>
-        if (${property.name} != null) {
+        if (${property.name} != null && !${property.name}.${templateUtil.getGetterName(pojo, property)}().contains(this)) {
             ${property.name}.${templateUtil.getGetterName(pojo, property)}().add(this);
         }
         </#if>
