@@ -2,7 +2,7 @@
 ${pojo.getExtraClassCode()}
   // end of extra code specified in the hbm.xml files
 </#if>
-<#if !pojo.hasMetaAttribute("extends")>
+<#if pojo.hasMetaAttribute("generate-uuid") || !pojo.hasMetaAttribute("extends")>
 
     @Transient
     public boolean isNew() {
@@ -12,6 +12,8 @@ ${pojo.getExtraClassCode()}
         return null == getId();
         </#if>
     }
+</#if>
+<#if !pojo.hasMetaAttribute("extends")>
 
     @Override
 	public boolean equals(Object obj) {
