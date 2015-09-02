@@ -45,7 +45,7 @@ import javax.persistence.AccessType;
 import static com.google.common.collect.Lists.newArrayList;
 import com.corballis.sms.core.option.*;
 import static com.corballis.sms.core.option.EntityIdToSelectedOptionValuesMapper.addSelectedOptions;
-import com.corballis.spring.mvc.utils.client.AlwaysIncluded;
+import com.corballis.vaquera.client.AlwaysIncluded;
 </#if>
 ${classbody}
 
