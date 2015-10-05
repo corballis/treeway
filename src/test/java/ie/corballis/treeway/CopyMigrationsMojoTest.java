@@ -49,105 +49,77 @@ public class CopyMigrationsMojoTest {
             copyMigrationsMojo.execute();
             Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
         } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("There are no migrations with version: NE1");
+            assertThat(e).hasMessage("Could not find folder for version NE1");
         }
     }
 
     @Test
-    public void verifyAmbiguousVersion() throws MojoExecutionException {
+    public void verifyDuplicateVersionFolder() throws MojoExecutionException {
         try {
-            copyMigrationsMojo.setMigrationVersion("A1");
+            copyMigrationsMojo.setMigrationVersion("D1");
             copyMigrationsMojo.execute();
             Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
         } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Migration is ambiguous with version: A1");
-        }
-
-        try {
-            copyMigrationsMojo.setMigrationVersion("A2");
-            copyMigrationsMojo.execute();
-            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
-        } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Migration is ambiguous with version: A1");
-        }
-
-        try {
-            copyMigrationsMojo.setMigrationVersion("A3");
-            copyMigrationsMojo.execute();
-            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
-        } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Migration is ambiguous with version: A1");
+            assertThat(e).hasMessage("More than one folder was found for the specified version: [src\\test\\resources\\treeway\\D1, src\\test\\resources\\treeway\\D1_company1_A1]");
         }
     }
 
     @Test
-    public void verifyCircularReferences() throws MojoExecutionException {
-        try {
-            copyMigrationsMojo.setMigrationVersion("C1");
-            copyMigrationsMojo.execute();
-            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
-        } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C1 generates a circular reference");
-        }
+    public void verifyBaseOnly() throws MojoFailureException, MojoExecutionException {
+        copyMigrationsMojo.setMigrationVersion("base");
+        copyMigrationsMojo.execute();
 
-        try {
-            copyMigrationsMojo.setMigrationVersion("C2");
-            copyMigrationsMojo.execute();
-            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
-        } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C1 generates a circular reference");
-        }
-
-        try {
-            copyMigrationsMojo.setMigrationVersion("C3");
-            copyMigrationsMojo.execute();
-            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
-        } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C4 generates a circular reference");
-        }
-
-        try {
-            copyMigrationsMojo.setMigrationVersion("C4");
-            copyMigrationsMojo.execute();
-            Fail.failBecauseExceptionWasNotThrown(MojoFailureException.class);
-        } catch (MojoFailureException e) {
-            assertThat(e).hasMessage("Version: C3 generates a circular reference");
-        }
+        verifyMigrations("V2015.04.30.08.40__base_migration.sql",
+                         "V2015.04.31.08.40__second_base.sql",
+                         "V2015.05.18.08.40__third_base.sql");
     }
 
     @Test
-    public void verifyCopyMigrations() throws MojoFailureException, MojoExecutionException {
-        copyMigrationsMojo.setMigrationVersion("B1");
-        copyMigrationsMojo.execute();
-
-        verifyMigrations("V2015.04.30.08.40__base_migration.sql");
-
-        copyMigrationsMojo.setMigrationVersion("CO11");
-        copyMigrationsMojo.execute();
-
-        verifyMigrations("V2015.04.30.08.40__base_migration.sql", "V2015.04.30.08.42__migration_1.sql");
-
-        copyMigrationsMojo.setMigrationVersion("CO12");
+    public void verifySimpleVersionWithoutParent() throws MojoFailureException, MojoExecutionException {
+        copyMigrationsMojo.setMigrationVersion("company1");
         copyMigrationsMojo.execute();
 
         verifyMigrations("V2015.04.30.08.40__base_migration.sql",
-                         "V2015.04.30.08.42__migration_1.sql",
-                         "V2015.04.30.08.43__migration_2.sql");
+                         "V2015.04.30.11.40__c_first.sql",
+                         "V2015.04.31.08.40__second_base.sql",
+                         "V2015.05.18.08.40__third_base.sql",
+                         "V2015.06.01.08.40__c_second.sql");
+    }
 
-        copyMigrationsMojo.setMigrationVersion("SC11");
+    @Test
+    public void verifyOverwriting() throws MojoFailureException, MojoExecutionException {
+        copyMigrationsMojo.setMigrationVersion("company3");
         copyMigrationsMojo.execute();
 
         verifyMigrations("V2015.04.30.08.40__base_migration.sql",
-                         "V2015.04.30.08.42__migration_1.sql",
-                         "V2015.04.30.08.43__migration_2.sql",
-                         "V2015.04.30.08.44__migration_3.sql");
+                         "V2015.04.30.11.40__c_first.sql",
+                         "V2015.04.31.08.40__overwritten_b2.sql",
+                         "V2015.05.18.08.40__third_base.sql",
+                         "V2015.06.01.08.40__c_second.sql");
+    }
 
-        copyMigrationsMojo.setMigrationVersion("SC21");
+    @Test
+    public void verifyInheritance() throws MojoFailureException, MojoExecutionException {
+        copyMigrationsMojo.setMigrationVersion("comp2");
         copyMigrationsMojo.execute();
 
         verifyMigrations("V2015.04.30.08.40__base_migration.sql",
-                         "V2015.04.30.08.42__migration_1.sql",
-                         "V2015.04.30.08.48__migration_4.sql");
+                         "V2015.04.30.11.40__c_first.sql",
+                         "V2015.04.31.08.40__second_base.sql",
+                         "V2015.05.18.08.40__third_base.sql",
+                         "V2015.06.01.08.40__d_first.sql");
+    }
+
+    @Test
+    public void verifyOverwriting2() throws MojoFailureException, MojoExecutionException {
+        copyMigrationsMojo.setMigrationVersion("company5");
+        copyMigrationsMojo.execute();
+
+        verifyMigrations("V2015.04.30.08.40__base_migration.sql",
+                         "V2015.04.30.11.40__c_first.sql",
+                         "V2015.04.31.08.40__overwritten_b2.sql",
+                         "V2015.05.18.08.40__third_base.sql",
+                         "V2015.06.01.08.40__d_first.sql");
     }
 
     private void verifyMigrations(String... expectedMigrations) {
