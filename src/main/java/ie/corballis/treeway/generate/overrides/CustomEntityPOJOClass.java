@@ -237,7 +237,11 @@ public class CustomEntityPOJOClass extends EntityPOJOClass {
 
         if (value != null && value instanceof Collection) {
             Collection collection = (Collection) value;
-            return ((OneToMany) collection.getElement()).getAssociatedClass().getJpaEntityName();
+            if (collection.getElement() instanceof OneToMany) {
+                return ((OneToMany) collection.getElement()).getAssociatedClass().getJpaEntityName();
+            } else if (collection.getElement() instanceof ManyToOne) {
+                return ((ManyToOne) collection.getElement()).getReferencedEntityName();
+            }
         }
 
         return null;
