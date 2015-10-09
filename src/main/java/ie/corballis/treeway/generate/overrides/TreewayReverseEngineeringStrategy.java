@@ -1,9 +1,11 @@
 package ie.corballis.treeway.generate.overrides;
 
 import org.hibernate.cfg.reveng.DelegatingReverseEngineeringStrategy;
+import org.hibernate.cfg.reveng.ReverseEngineeringRuntimeInfo;
 import org.hibernate.cfg.reveng.ReverseEngineeringStrategy;
 import org.hibernate.cfg.reveng.TableIdentifier;
 import org.hibernate.mapping.Column;
+import org.hibernate.mapping.Table;
 
 import java.util.List;
 
@@ -13,8 +15,14 @@ import static org.hibernate.cfg.reveng.ReverseEngineeringStrategyUtil.toUpperCam
 
 public class TreewayReverseEngineeringStrategy extends DelegatingReverseEngineeringStrategy {
 
+    private ReverseEngineeringRuntimeInfo runtimeInfo;
+
     public TreewayReverseEngineeringStrategy(ReverseEngineeringStrategy delegate) {
         super(delegate);
+    }
+
+    public void configure(ReverseEngineeringRuntimeInfo rti) {
+        this.runtimeInfo = rti;
     }
 
     @Override
@@ -61,5 +69,27 @@ public class TreewayReverseEngineeringStrategy extends DelegatingReverseEngineer
 
             return tableName + "For" + columnName;
         }
+    }
+
+    @Override
+    public boolean isForeignKeyCollectionInverse(String name,
+                                                 TableIdentifier foreignKeyTableIdentifier,
+                                                 List columns,
+                                                 TableIdentifier foreignKeyReferencedTable,
+                                                 List referencedColumns) {
+
+        Table foreignKeyTable = runtimeInfo.getTable(foreignKeyTableIdentifier);
+        if (foreignKeyTable == null) {
+            return true; // we don't know better
+        }
+
+        if (isManyToManyTable(foreignKeyTable)) {
+            // if the reference column is the first one then we are inverse.
+            Column column = foreignKeyTable.getColumn(0);
+            Column fkColumn = (Column) columns.get(0);
+            return fkColumn.equals(column);
+        }
+
+        return true;
     }
 }
